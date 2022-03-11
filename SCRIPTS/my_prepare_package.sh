@@ -33,7 +33,8 @@ sed -i '/Target Platform/d' ./package/emortal/autocore/files/*/rpcd_10_system.js
 #bash ${OP_SC_DIR}/../PATCH/app/Argon.sh
 
 # ssr
-bash ${OP_SC_DIR}/../PATCH/app/SSRPlus.sh
+#bash ${OP_SC_DIR}/../PATCH/app/SSRPlus.sh
+bash ${OP_SC_DIR}/../PATCH/app/OpenClash.sh
 
 # 调整默认 LAN IP
 sed -i 's/192.168.1.1/192.168.2.1/g' package/base-files/files/bin/config_generate
