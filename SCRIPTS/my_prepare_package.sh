@@ -24,7 +24,7 @@ sed -i '/8152/d' 02_R2S.sh
 
 ################ 自定义部分 -Start- ################
 # 调整 LuCI 依赖，去除 luci-app-opkg，替换主题 bootstrap 为 argon
-sed -i 's/+luci-app-opkg //' ./feeds/luci/collections/luci/Makefile
+#sed -i 's/+luci-app-opkg //' ./feeds/luci/collections/luci/Makefile
 #sed -i 's/luci-theme-bootstrap/luci-theme-argon/' ./feeds/luci/collections/luci/Makefile
 
 # 去除多余信息显示
