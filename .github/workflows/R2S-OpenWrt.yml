@@ -21,10 +21,9 @@ jobs:
       run: |
         release_tag="$(date +%Y-%m-%d_%H-%M)"
         release_name="R2S-OpenWrt_v21.02_$release_tag"
-        release_description="${{ secrets.DESC }}"
         echo "##[set-output name=release_tag;]$release_tag"
         echo "##[set-output name=release_name;]$release_name"
-        echo "##[set-output name=release_description;]$release_description"
+        tail -n 20 README.md > DESC.md 
     - name: Show CPU Info
       run: |
         echo -e "Total CPU cores\t: $(nproc)"
@@ -52,10 +51,9 @@ jobs:
         git config --global user.name 'GitHub Actions' && git config --global user.email 'noreply@github.com'
     - name: Merge Nick's Code
       run: |
-        git clone --single-branch -b main https://github.com/nicholas-opensource/OpenWrt-Autobuild.git
+        git clone --single-branch -b Sino https://github.com/RikudouPatrickstar/Nicholas-OpenWrt.git OpenWrt-Autobuild
         mv ./OpenWrt-Autobuild/SCRIPTS/* ./SCRIPTS/
         mv ./SCRIPTS/R2S/* ./SCRIPTS/
-        sed -i 's,package/lean,package/new,g' ./SCRIPTS/*.sh
         mv ./OpenWrt-Autobuild/PATCH/* ./PATCH/
         mv -f ./PATCH/zzz-default-settings ./PATCH/duplicate/addition-trans-zh-r2s/files/
         rm -rf ./OpenWrt-Autobuild/
@@ -124,5 +122,5 @@ jobs:
         artifacts: ./openwrt/bin/targets/rockchip/armv8/*
         name: ${{ steps.gen_info.outputs.release_name }}
         tag: ${{ steps.gen_info.outputs.release_tag }}
-        body: ${{ steps.gen_info.outputs.release_description }}
+        bodyFile: ./DESC.md
         token: ${{ secrets.GITHUB_TOKEN }}

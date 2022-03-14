@@ -4,6 +4,14 @@
 uci set system.@system[0].timezone=CST-8
 uci set system.@system[0].zonename=Asia/Shanghai
 uci set system.@system[0].hostname='NanoPi-R2S'
+
+# System Log
+uci set system.@system[0].log_size='512'
+uci set system.@system[0].log_ip='127.0.0.1'
+uci set system.@system[0].log_proto='tcp'
+uci set system.@system[0].log_file='/root/system.log'
+uci set system.@system[0].conloglevel='8'
+uci set system.@system[0].cronloglevel='5'
 uci commit system
 
 # Default theme
@@ -27,14 +35,29 @@ uci commit uhttpd
 uci delete network.globals.ula_prefix
 uci delete network.lan.ip6assign
 uci delete network.wan6
+uci set network.wan.ipv6='0'
 uci delete dhcp.lan.ra
 uci delete dhcp.lan.ra_management
 uci delete dhcp.lan.dhcpv6
 uci delete dhcp.lan.ndp
-uci commit dhcp
 
 # Packet Steering
 uci set network.globals.packet_steering=1
+
+# WAN
+uci set network.wan.proto='pppoe'
+uci del dhcp.wan.ra_flags
+uci add_list dhcp.wan.ra_flags='none'
+
+# LAN DHCP
+uci del dhcp.lan.ra_slaac
+uci set dhcp.lan.start='10'
+uci set dhcp.lan.limit='240'
+uci set dhcp.lan.leasetime='2h'
+uci del dhcp.lan.ra_flags
+uci add_list dhcp.lan.ra_flags='none'
+
+uci commit dhcp
 uci commit network
 /etc/init.d/network restart
 
@@ -51,10 +74,6 @@ sed -i 's,#USE_SOFTDRIVERS = 2,USE_SOFTDRIVERS = 1,g' /etc/ssl/openssl.cnf
 sed -i '/log-facility/d' /etc/dnsmasq.conf
 echo "log-facility=/dev/null" >> /etc/dnsmasq.conf
 
-# Interfaces
-ifdown wan && ifup wan
-ifdown lan && ifup lan
-
 # OpenClash
 # uci set openclash.config.core_version='linux-armv8'
 # #uci set openclash.config.en_mode='fake-ip'
@@ -67,6 +86,13 @@ uci set samba4.@samba[0].interface='lan'
 uci set samba4.@samba[0].macos='1'
 uci set samba4.@samba[0].disable_netbios='1'
 uci commit samba4
+
+# v2rayA
+uci set v2raya.config.log_max_days="1"
+uci set v2raya.config.log_level="warning"
+uci set v2raya.config.ipv6_support="off"
+uci commit v2raya
+/etc/init.d/v2raya reload
 
 # Vim
 sed -i 's/set mouse/"set mouse/g' /usr/share/vim/vim82/defaults.vim
@@ -83,5 +109,15 @@ opkg flag hold dnsmasq-full
 # Flush LuCI cache
 rm -rf /tmp/luci-modulecache
 rm -f /tmp/luci-indexcache
+
+# Private Settings
+my_device='/dev/sda1'
+my_dir='/mnt/share'
+my_script="${my_dir}/init.sh"
+if [ -b "${my_device}" ];then
+    mkdir ${my_dir}
+    mount ${my_device} ${my_dir}
+    [ -f "${my_script}" ] && sh ${my_script}
+fi
 
 exit 0
